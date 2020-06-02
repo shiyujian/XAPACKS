@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>请上传shapefile文件</title>
+</head>
+<body>
+    <form enctype="multipart/form-data" action="/arcgis/uploadelevationPointfile/" method="POST">
+        <h2>上传施工前高程点</h2>
+        <input type="text" name='file_type' value="Point">
+        <input type="text" name='file_name' value="bybefore">
+        <input type="file" name="file">
+        <input type="submit" value="提交">
+    </form>
+    <form enctype="multipart/form-data" action="/arcgis/uploadelevationPointfile/" method="POST">
+        <h2>上传施工红线</h2>
+        <input type="text" name='file_type' value="Polygon">
+        <input type="text" name='file_name' value="byredline">
+        <input type="file" name="file">
+        <input type="submit" value="提交">
+    </form>
+    <form enctype="multipart/form-data" action="/arcgis/uploadelevationPointfile/" method="POST">
+        <h2>上传施工后高程点</h2>
+        <input type="text" name='file_type' value="Point">
+        <input type="text" name='file_name' value="byafter">
+        <input type="file" name="file">
+        <input type="submit" value="提交">
+    </form>
+    <form enctype="multipart/form-data" action="/arcgis/uploadelevationPointfile/" method="POST">
+        <h2>上传红线</h2>
+        <input type="text" name='file_type' value="Polygon">
+        <input type="text" name='section' value="P191-01-01">
+        <input type="text" name='file_name' value="redline">
+        <input type="file" name="file">
+        <input type="submit" value="提交">
+    </form>
+</body>
+</html>
