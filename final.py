@@ -14,8 +14,8 @@ cursor = conn.cursor()
 chrome_options = Options()
 chrome_options.add_argument('headless')
 countWeather = 1
-countWarnings = 6
-countNotice = 8
+countWarnings = 5
+countNotice = 4
 Headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
     "Cookie": "FSSBBIl1UgzbN7N443S=9iHrYuX2kPlKp9ROGzoXAEkcVsAUf_rBF4GwHI1LgtLhk3pkd64cZaUutwB2LS_g; FSSBBIl1UgzbN7N80S=Y2Ms08cD3.Fbwj_KUyRPRobcsatjmNRR5FESRbI0CeyyzL74llHTmu57DpxF2Vus; Hm_lvt_89a42a8529b1127d2cd6fa639511a328=1592978122,1593307026,1593308364,1593317749; JSESSIONID=2wP5cYRrSlpZu24krq9hERSd217iGTjCUyShp5LJRpZo81VvpLBy!-1446521199; FSSBBIl1UgzbN7N80T=1suEYZOvAJxD3SkEojLGy2ji8ThB5t0xQNy_7ZHTnURzYnuc2dSNFAOb.jRYPpmi5HoJV7fIQ9DinzL0YK4RX6u8uvNDS5oBWoD9DsLkppcUFEt0hJZRkDCsjwMY.I7Bqjm5XxD467H6zA2god7deNwcDkIkrvNiBuI8My7LpFm5vNxKi8kgKfE_LvL_dR0Lq.dd5nCSyCmRfaKICoGsXAz8lSpKstgxx.vk.nz3YsdLt; Hm_lpvt_89a42a8529b1127d2cd6fa639511a328=1593325194; FSSBBIl1UgzbN7N443T=1c1mzFIMzdZoHeGZCj7r8rSbpOxSVQ58R.lSFg3CFfjN8gtwJamtQZaQClRiufuNg6K2DYWpjCTM7P_44p6ZdhUMX7b4mfGZfAWd7Ez0kwtvFvIb2.v1U35UuLQzvmfKSSCmSbcktYM1elYZzD6O3uCGISmSwNHjvIIwgF4t6vvfNIblsKSmBZ..pSOIhMbA9u1Id5pq8QE5CDNjVfEXikJw7YNTUv4un.ksPk4z_Cc.yKrp0Xo.Nr5X.21twfDGGBA",
@@ -75,47 +75,48 @@ regionWeatherArr = list(regionWeather.keys())
 regionNoticeArr = list(regionNotice.keys())
 regionWarningsArr = list(regionWarnings.keys())
 # 气象信息
-def weatherInfo():
-    print('weatherInfo开始')
-    codes = []
-    origin_name = ''
-    global countWeather
-    global paramsRegion
-    countWeather = countWeather + 1
-    if countWeather > 2:
-        countWeather = 0
-    weatherOrigin = regionWeatherArr[countWeather]
-    if weatherOrigin in regionWeather:
-        origin_name = regionWeather[weatherOrigin]
-    rep = requests.get(url='https://www.msa.gov.cn/msacncms_weather/query/', params={
-        'weatherOrigin': weatherOrigin,
-        'pageNum': 1,
-        'pageSize': 10,
-    }, headers=Headers)
-    weatherinfoJson = rep.json()
-    if 'success' in weatherinfoJson:
-        weatherData = weatherinfoJson['weather']['data']
-        for record in weatherData:
-            try:
-                Sql = """
-                    INSERT INTO maritime_info(origin_id, origin_no, origin_name, create_time, content, title, type) 
-                    VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s');
-                """ % (record['weatherId'], record['weatherOrigin'], origin_name, record['weatherDate'], record['weatherContent'], record['weatherTitle'], '2')
-                print(Sql)
-                code = cursor.execute(Sql)
-                conn.commit()
-            except pymysql.err.IntegrityError:
-                print('记录已存在')
-                code = 0
-            except:
-                code = 4
-            codes.append(code)
-        result = {
-            'codes': codes,
-            'msg': 'ok',
-            'content': '%s_气象信息成功新增%d条，已存在%d条, 其他%d条' % (origin_name, codes.count(1), codes.count(0), codes.count(4))
-        }
-        print(result)
+# def weatherInfo():
+#     print('weatherInfo开始')
+#     codes = []
+#     origin_name = ''
+#     global countWeather
+#     global paramsRegion
+#     countWeather = countWeather + 1
+#     if countWeather > 2:
+#         countWeather = 0
+#     weatherOrigin = regionWeatherArr[countWeather]
+#     if weatherOrigin in regionWeather:
+#         origin_name = regionWeather[weatherOrigin]
+#     rep = requests.get(url='https://www.msa.gov.cn/msacncms_weather/query/', params={
+#         'weatherOrigin': weatherOrigin,
+#         'pageNum': 1,
+#         'pageSize': 10,
+#     }, headers=Headers)
+#     weatherinfoJson = rep.json()
+#     if 'success' in weatherinfoJson:
+#         weatherData = weatherinfoJson['weather']['data']
+#         for record in weatherData:
+#             try:
+#                 Sql = """
+#                     INSERT INTO maritime_info(origin_id, origin_no, origin_name, create_time, content, title, type) 
+#                     VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s');
+#                 """ % (record['weatherId'], record['weatherOrigin'], origin_name, record['weatherDate'], record['weatherContent'], record['weatherTitle'], '2')
+#                 print(Sql)
+#                 code = cursor.execute(Sql)
+#                 conn.commit()
+#             except pymysql.err.IntegrityError:
+#                 print('记录已存在')
+#                 code = 0
+#             except:
+#                 code = 4
+#             codes.append(code)
+#         result = {
+#             'codes': codes,
+#             'msg': 'ok',
+#             'content': '%s_气象信息成功新增%d条，已存在%d条, 其他%d条' % (origin_name, codes.count(1), codes.count(0), codes.count(4))
+#         }
+#         print(result)
+
 # 航行通告
 def sailingNotice():
     print('sailingNotice开始')
@@ -133,12 +134,11 @@ def sailingNotice():
     session = HTMLSession()
     rep = session.get('https://www.msa.gov.cn/page/openInfo/articleList.do', params={
         'channelId': channelId,
-        'pageNo': 1,
-        'pageSize': 10,
+        'pageNo': 10,
+        'pageSize': 1,
         'isParent': 0
     }, headers=Headers)
     for li in rep.html.find('.main_list_li'):
-        driver = webdriver.Chrome(options=chrome_options)
         a = li.find('a', first=True)
         textSpan = a.find('.name', first=True)
         timeSpan = a.find('.time', first=True)
@@ -154,131 +154,176 @@ def sailingNotice():
         finalWKT = ''
         patternChinese = re.compile(r'[\u4E00-\u9FA5]')
         print(title)
+        if origin_id:
+            SelectSql = """
+                SELECT *
+                FROM maritime_info
+                WHERE origin_id = '%s' AND origin_no = '%s'
+            """ % (origin_id, channelId)
+            SelectCode = cursor.execute(SelectSql)
+            if SelectCode == 1:
+                code = 2
+                codes.append(code)
+                print('已存在略过')
+                continue
         if len(patternChinese.findall(title)) == 0:
-            # 全英文项公告舍弃
-            code = 2
-            pass
+            code = 3
+            codes.append(code)
+            print('舍弃全英文')
+            continue
+        # 打开页面
+        driver = webdriver.Chrome(options=chrome_options)
+        print(link_url)
+        driver.get(link_url)
+        cookie = driver.get_cookies()
+        cookieStr = ''
+        for record in cookie:
+            cookieStr = cookieStr + '%s=%s; ' % (record['name'], record['value'])
+        finalCookie = cookieStr[0:-2]
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+            "Cookie": finalCookie,
+        }
+        driver.quit()
+        session = HTMLSession()
+        response = session.get(link_url, headers=headers)
+        if response.status_code != 200:
+            code = 4
+            codes.append(code)
+            print('未成功打开页面')
+            continue
+        # 成功打开页面
+        response.raise_for_status()
+        response.encoding = response.apparent_encoding
+        content = response.html.find('#ch_p', first=True).text.split('收藏')[0]
+        patternYear = re.compile(r'(\d{4})\s?\u5e74')
+        patternMonth = re.compile(r'([1-9]|[1][0-2])\s?\u6708')
+        patternDay = re.compile(r'([1-9]|[1-3][0-9])\s?\u65e5')
+        patternHour = re.compile(r'(\d{2,4})\s?\u65f6')
+        # print(content)
+        # patternXSecond = re.compile(r'(\d{2})°(\d{2})′(\d+)″[N][\W]') # 度分秒格式 38°51′41″N　121°38′12″E
+        # patternYSecond = re.compile(r'[\W](\d{3})°(\d{2})′(\d+)″[E]') # 度分秒格式
+        # patternXMinute = re.compile(r'(\d{2})[-°](\d{2}\.\d+)\W?[N][\W]')
+        # patternYMinute = re.compile(r'[\W](\d{3})-(\d{2}\.\d+)\W?[E]')
+        patternXMinute = re.compile(r'\D(\d{2})[°-](\d{2}.\d+)[′]?N') # 度分格式 A：20°00.000′N、108°27.834′E；# 度分格式 29-41.26N 122-31.31E
+        patternYMinute = re.compile(r'\D(\d{3})[°-](\d{2}.\d+)[′]?E')
+        yearArr = patternYear.findall(content)
+        mouthArr = patternMonth.findall(content)
+        dayArr = patternDay.findall(content)
+        hourArr = patternHour.findall(content)
+        print(yearArr)
+        print(mouthArr)
+        print(dayArr)
+        print(hourArr)
+        coordType = ''
+        resultX = []
+        resultY = []
+        # if len(patternXSecond.findall(content)) > 0 and len(patternYSecond.findall(content)) > 0:
+        #     resultX = patternXSecond.findall(content)
+        #     resultY = patternYSecond.findall(content)
+        #     coordType = 'Second'
+        if len(patternXMinute.findall(content)) > 0 and len(patternYMinute.findall(content)) > 0:
+            resultX = patternXMinute.findall(content)
+            resultY = patternYMinute.findall(content)
+            coordType = 'Minute'
+        defaultYear = time.strftime("%Y", time.localtime())
+        print(coordType)
+        print(resultX)
+        print(resultY)
+        if len(resultX) < 3 or len(resultY) < 3 or len(resultX) != len(resultY) or len(dayArr) < 1 or content.find('拖带') > -1:
+            print('没有区域坐标')
+            Sql = """
+                INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
+                VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
+            """ % (origin_id, link_url, title, create_time, origin_name, channelId, '0', content)
         else:
-            # 打开页面
-            print(link_url)
-            driver.get(link_url)
-            cookie = driver.get_cookies()
-            cookieStr = ''
-            for record in cookie:
-                cookieStr = cookieStr + '%s=%s; ' % (record['name'], record['value'])
-            finalCookie = cookieStr[0:-2]
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
-                "Cookie": finalCookie,
-            }
-            session = HTMLSession()
-            response = session.get(link_url, headers=headers)
-            if response.status_code != 200:
-                print('未成功打开页面')
-                code = 3
-            else:
-                # 成功打开页面
-                response.raise_for_status()
-                response.encoding = response.apparent_encoding
-                content = response.html.find('#ch_p', first=True).text.split('收藏')[0]
-                patternYear = re.compile(r'(\d{4})\u5e74')
-                patternMonth = re.compile(r'([1-9]|[1][0-2])\u6708')
-                patternDay = re.compile(r'([1-9]|[1-3][0-9])\u65e5')
-                patternHour = re.compile(r'(\d{2,4})\u65f6')
-                patternX = re.compile(r'(\d{2})\W(\d{2})\W?(\d+)\W?[N][\W]')
-                patternY = re.compile(r'[\W](\d{3})\W(\d{2})\W?(\d+)\W?[E]')
-                yearArr = patternYear.findall(content)
-                mouthArr = patternMonth.findall(content)
-                dayArr = patternDay.findall(content)
-                hourArr = patternHour.findall(content)
-                resultX = patternX.findall(content)
-                resultY = patternY.findall(content)
-                defaultYear = time.strftime("%Y", time.localtime())
-                print(resultX)
-                if len(resultX) < 3 or len(resultY) < 3 or len(resultX) != len(resultY) or len(dayArr) < 1:
-                    # 没有区域坐标 
-                    Sql = """
-                        INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
-                        VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
-                    """ % (origin_id, link_url, title, create_time, origin_name, channelId, '0', content)
-                else:
-                    # 有区域坐标 
-                    PolygonWKT = 'POLYGON(('
-                    PointArr = []
-                    for index in range(len(resultX)):
-                        coordX = resultX[index]
-                        coordY = resultY[index]
-                        X = '%s.%s%s' % (coordX[0], coordX[1], coordX[2])
-                        Y = '%s.%s%s' % (coordY[0], coordY[1], coordY[2])
-                        PolygonWKT = PolygonWKT + X + ' ' + Y + ', '
-                        PointArr.append(X + ' ' + Y)
-                    finalWKT = PolygonWKT + PointArr[0] + '))'
-                    if len(dayArr) == 2:
-                        # 多天
-                        if len(mouthArr) == 2:
-                            # 多月
-                            if len(yearArr) == 2:
-                                # 多年
-                                startDate = '%s-%s-%s' % (yearArr[0], mouthArr[0], dayArr[0])
-                                endDate = '%s-%s-%s' % (yearArr[1], mouthArr[1], dayArr[1])
-                            else:
-                                startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                                endDate = '%s-%s-%s' % (defaultYear, mouthArr[1], dayArr[1])
-                        else:
-                            # 单月
-                            startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                            endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[1])
-                    else:
-                        # 单天
+            coordXArr = []
+            coordYArr = []
+            if coordType == 'Second':
+                for X in resultX:
+                    coordX = format(int(X[0]) + int(X[1]) / 60 + int(X[2]) / 3600, '.7f')
+                    coordXArr.append(coordX)
+                for Y in resultY:
+                    coordY = format(int(Y[0]) + int(Y[1]) / 60 + int(Y[2]) / 3600, '.7f')
+                    coordYArr.append(coordY)
+            elif coordType == 'Minute':
+                for X in resultX:
+                    coordX = format(int(X[0]) + float(X[1]) / 60, '.7f')
+                    coordXArr.append(coordX)
+                for Y in resultY:
+                    coordY = format(int(Y[0]) + float(Y[1]) / 60, '.7f')
+                    coordYArr.append(coordY)
+            PolygonWKT = 'POLYGON(('
+            PointArr = []
+            for index in range(len(coordXArr)):
+                X = coordXArr[index]
+                Y = coordYArr[index]
+                PolygonWKT = PolygonWKT + X + ' ' + Y + ', '
+                PointArr.append(X + ' ' + Y)
+            finalWKT = PolygonWKT + PointArr[0] + '))'
+            if len(dayArr) > 1:
+                # 多天
+                if len(mouthArr) > 1:
+                    # 多月
+                    if len(yearArr) > 1:
+                        # 多年
+                        startDate = '%s-%s-%s' % (yearArr[0], mouthArr[0], dayArr[0])
+                        endDate = '%s-%s-%s' % (yearArr[1], mouthArr[1], dayArr[1])
+                    elif len(yearArr) == 1:
                         startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                        endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                    if len(hourArr) == 2:
-                        startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
-                        endTime = '%s:%s:00' % (hourArr[1][0:2], hourArr[1][2:4])
-                        if hourArr[0][0:2] == '24':
-                            startTime = '23:59:59'
-                        if hourArr[1][0:2] == '24':
-                            endTime = '23:59:59'
-                    elif len(hourArr) == 0:
-                        startTime = '00:00:00'
-                        endTime = '23:59:59'
-                    else:
-                        startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
-                        endTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
-                        if hourArr[0][0:2] == '24':
-                            startTime = '23:59:59'
-                            endTime = '23:59:59'
-                    startDateTime = startDate + ' ' + startTime
-                    endDateTime = endDate + ' ' + endTime
-                    if startDateTime == endDateTime:
-                        # 没有时间范围
-                        Sql = """
-                            INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
-                            VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
-                        """ % (origin_id, link_url, title, create_time, origin_name, channelId, '0', content)
-                    else:
-                        Sql = """
-                            INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content, start_time, end_time, the_geom) 
-                            VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', ST_GeomFromText('%s'));
-                        """ % (origin_id, link_url, title, create_time, origin_name, channelId, '0', content, startDateTime, endDateTime, finalWKT) 
-                try:
-                    print(Sql)
-                    code = cursor.execute(Sql)
-                    conn.commit()
-                except pymysql.err.IntegrityError:
-                    print('记录已存在')
-                    code = 0
-                except:
-                    code = 4
-                    print('其他问题')
+                        endDate = '%s-%s-%s' % (defaultYear, mouthArr[1], dayArr[1])
+                elif len(mouthArr) == 1:
+                    # 单月
+                    startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
+                    endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[1])
+            elif len(dayArr) == 1:
+                # 单天
+                startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
+                endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
+            if len(hourArr) == 2:
+                startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
+                endTime = '%s:%s:00' % (hourArr[1][0:2], hourArr[1][2:4])
+                if hourArr[0][0:2] == '24':
+                    startTime = '23:59:59'
+                if hourArr[1][0:2] == '24':
+                    endTime = '23:59:59'
+            elif len(hourArr) == 0:
+                startTime = '00:00:00'
+                endTime = '23:59:59'
+            else:
+                startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
+                endTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
+                if hourArr[0][0:2] == '24':
+                    startTime = '23:59:59'
+                    endTime = '23:59:59'
+            startDateTime = startDate + ' ' + startTime
+            endDateTime = endDate + ' ' + endTime
+            if startDateTime == endDateTime:
+                # 没有时间范围
+                Sql = """
+                    INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
+                    VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
+                """ % (origin_id, link_url, title, create_time, origin_name, channelId, '0', content)
+            else:
+                Sql = """
+                    INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content, start_time, end_time, the_geom) 
+                    VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', ST_GeomFromText('%s'));
+                """ % (origin_id, link_url, title, create_time, origin_name, channelId, '0', content, startDateTime, endDateTime, finalWKT) 
+        try:
+            print(Sql)
+            code = cursor.execute(Sql)
+            conn.commit()
+        except:
+            code = 0
+            print('入库失败')
         codes.append(code)
-        driver.close()
     result = {
-        'codes': codes, # 2 不入库 1成功 0 失败
+        'codes': codes, # 1成功 2 已存在 3 英文版 4 未打开 0 失败
         'msg': 'ok',
-        'content': '%s_航行警告成功新增%d条，已存在%d条，英文版%d条，未打开%d条' % (origin_name, codes.count(1), codes.count(0), codes.count(2), codes.count(3)),
+        'content': '%s_航行警告成功新增%d条，已存在%d条，英文版%d条，未打开%d条，失败%d条' % (origin_name, codes.count(1), codes.count(2), codes.count(3), codes.count(4), codes.count(0)),
     }
     print(result)
+
 # 航行警告
 def sailingWarnings():
     print('sailingWarnings开始')
@@ -301,7 +346,6 @@ def sailingWarnings():
         'isParent': 0
     }, headers=Headers)
     for li in rep.html.find('.main_list_li'):
-        driver = webdriver.Chrome(options=chrome_options)
         a = li.find('a', first=True)
         textSpan = a.find('.name', first=True)
         timeSpan = a.find('.time', first=True)
@@ -317,139 +361,178 @@ def sailingWarnings():
         finalWKT = ''
         patternChinese = re.compile(r'[\u4E00-\u9FA5]')
         print(title)
+        if origin_id:
+            SelectSql = """
+                SELECT *
+                FROM maritime_info 
+                WHERE origin_id = '%s' AND origin_no = '%s'
+            """ % (origin_id, channelId)
+            SelectCode = cursor.execute(SelectSql)
+            if SelectCode == 1:
+                code = 2
+                codes.append(code)
+                print('已存在略过')
+                continue
         if len(patternChinese.findall(title)) == 0:
-            # 舍弃全英文
             code = 2
-            pass
+            codes.append(code)
+            print('舍弃全英文')
+            continue
+        # 打开页面
+        driver = webdriver.Chrome(options=chrome_options)
+        print(link_url)
+        driver.get(link_url)
+        cookie = driver.get_cookies()
+        cookieStr = ''
+        for record in cookie:
+            cookieStr = cookieStr + '%s=%s; ' % (record['name'], record['value'])
+        finalCookie = cookieStr[0:-2]
+        driver.quit()
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+            "Cookie": finalCookie,
+        }
+        session = HTMLSession()
+        response = session.get(link_url, headers=headers)
+        if response.status_code != 200:
+            print('未成功打开页面')
+            code = 4
+            codes.append(code)
+            continue
+        print('成功打开页面')
+        response.raise_for_status()
+        response.encoding = response.apparent_encoding
+        content = response.html.find('#ch_p', first=True).text.split('收藏')[0]
+        patternYear = re.compile(r'(\d{4})\s?\u5e74')
+        patternMonth = re.compile(r'([1-9]|[1][0-2])\s?\u6708')
+        patternDay = re.compile(r'([1-9]|[1-3][0-9])\s?\u65e5')
+        patternHour = re.compile(r'(\d{4})\s?\u65f6')
+        # 度分秒格式1 38°51′41″N　121°38′12″E 度分秒格式2 40°37′38.8″N  122°07′48.2″E 度分秒格式3 40°40′16″.43N/121°58′01″.62E
+        patternXSecond = re.compile(r'\D(\d{2})°(\d{2})′(\d+)(\.\d+)?″(\.\d+)?N')
+        patternYSecond = re.compile(r'\D(\d{3})°(\d{2})′(\d+)(\.\d+)?″(\.\d+)?E') # 度分秒格式
+        # 度分格式1 A：20°00.000′N、108°27.834′E；# 度分格式2 29-41.26N 122-31.31E 度分格式3 38°47′718N,122°11′036E；
+        patternXMinute = re.compile(r'\D(\d{2})[°-](\d{2})(\.\d+)?′?(\d+)?N')
+        patternYMinute = re.compile(r'\D(\d{3})[°-](\d{2})(\.\d+)?′?(\d+)?E')
+        yearArr = patternYear.findall(content)
+        mouthArr = patternMonth.findall(content)
+        dayArr = patternDay.findall(content)
+        hourArr = patternHour.findall(content)
+        resultX = []
+        resultY = []
+        coordXArr = []
+        coordYArr = []
+        if len(patternXSecond.findall(content)) > 0 and len(patternYSecond.findall(content)) > 0:
+            resultX = patternXSecond.findall(content)
+            resultY = patternYSecond.findall(content)
+            for X in resultX:
+                coordX = format(int(X[0]) + int(X[1]) / 60 + int(X[2]) / 3600, '.7f')
+                coordXArr.append(coordX)
+            for Y in resultY:
+                coordY = format(int(Y[0]) + int(Y[1]) / 60 + int(Y[2]) / 3600, '.7f')
+                coordYArr.append(coordY)
+        elif len(patternXMinute.findall(content)) > 0 and len(patternYMinute.findall(content)) > 0:
+            resultX = patternXMinute.findall(content)
+            resultY = patternYMinute.findall(content)
+            for X in resultX:
+                coordX = format(int(X[0]) + float(X[1]) / 60, '.7f')
+                coordXArr.append(coordX)
+            for Y in resultY:
+                coordY = format(int(Y[0]) + float(Y[1]) / 60, '.7f')
+                coordYArr.append(coordY)
+        print(resultX)
+        print(resultY)
+        defaultYear = time.strftime("%Y", time.localtime())
+        if len(resultX) < 3 or len(resultY) < 3 or len(resultX) != len(resultY) or len(dayArr) < 1:
+            print('没有区域坐标') 
+            Sql = """
+                INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
+                VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
+            """ % (origin_id, link_url, title, create_time, origin_name, channelId, '1', content)
         else:
-            # 打开页面
-            print(link_url)
-            driver.get(link_url)
-            cookie = driver.get_cookies()
-            cookieStr = ''
-            for record in cookie:
-                cookieStr = cookieStr + '%s=%s; ' % (record['name'], record['value'])
-            finalCookie = cookieStr[0:-2]
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
-                "Cookie": finalCookie,
-            }
-            session = HTMLSession()
-            response = session.get(link_url, headers=headers)
-            if response.status_code != 200:
-                print('未成功打开页面')
-                code = 3
-            else:
-                # 成功打开页面
-                response.raise_for_status()
-                response.encoding = response.apparent_encoding
-                content = response.html.find('#ch_p', first=True).text.split('收藏')[0]
-                patternYear = re.compile(r'(\d{4})\u5e74')
-                patternMonth = re.compile(r'([1-9]|[1][0-2])\u6708')
-                patternDay = re.compile(r'([1-9]|[1-3][0-9])\u65e5')
-                patternHour = re.compile(r'(\d{2,4})\u65f6')
-                patternX = re.compile(r'(\d{2})\W(\d{2})\W?(\d+)\W?[N][\W]')
-                patternY = re.compile(r'[\W](\d{3})\W(\d{2})\W?(\d+)\W?[E]')
-                yearArr = patternYear.findall(content)
-                mouthArr = patternMonth.findall(content)
-                dayArr = patternDay.findall(content)
-                hourArr = patternHour.findall(content)
-                resultX = patternX.findall(content)
-                resultY = patternY.findall(content)
-                defaultYear = time.strftime("%Y", time.localtime())
-                if len(resultX) < 3 or len(resultY) < 3 or len(resultX) != len(resultY) or len(dayArr) < 1:
-                    # 没有区域坐标 
-                    Sql = """
-                        INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
-                        VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
-                    """ % (origin_id, link_url, title, create_time, origin_name, channelId, '1', content)
-                else:
-                    # 有区域坐标 
-                    PolygonWKT = 'POLYGON(('
-                    PointArr = []
-                    for index in range(len(resultX)):
-                        coordX = resultX[index]
-                        coordY = resultY[index]
-                        X = '%s.%s%s' % (coordX[0], coordX[1], coordX[2])
-                        Y = '%s.%s%s' % (coordY[0], coordY[1], coordY[2])
-                        PolygonWKT = PolygonWKT + X + ' ' + Y + ', '
-                        PointArr.append(X + ' ' + Y)
-                    finalWKT = PolygonWKT + PointArr[0] + '))'
-                    if len(dayArr) == 2:
-                        # 多天
-                        if len(mouthArr) == 2:
-                            # 多月
-                            if len(yearArr) == 2:
-                                # 多年
-                                startDate = '%s-%s-%s' % (yearArr[0], mouthArr[0], dayArr[0])
-                                endDate = '%s-%s-%s' % (yearArr[1], mouthArr[1], dayArr[1])
-                            else:
-                                startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                                endDate = '%s-%s-%s' % (defaultYear, mouthArr[1], dayArr[1])
-                        else:
-                            # 单月
-                            startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                            endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[1])
+            PolygonWKT = 'POLYGON(('
+            PointArr = []
+            for index in range(len(coordXArr)):
+                X = coordXArr[index]
+                Y = coordYArr[index]
+                PolygonWKT = PolygonWKT + X + ' ' + Y + ', '
+                PointArr.append(X + ' ' + Y)
+            finalWKT = PolygonWKT + PointArr[0] + '))'
+            print(finalWKT)
+            if len(dayArr) == 2:
+                # 多天
+                if len(mouthArr) == 2:
+                    # 多月
+                    if len(yearArr) == 2:
+                        # 多年
+                        startDate = '%s-%s-%s' % (yearArr[0], mouthArr[0], dayArr[0])
+                        endDate = '%s-%s-%s' % (yearArr[1], mouthArr[1], dayArr[1])
                     else:
-                        # 单天
                         startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                        endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
-                    if len(hourArr) == 2:
-                        startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
-                        endTime = '%s:%s:00' % (hourArr[1][0:2], hourArr[1][2:4])
-                        if hourArr[0][0:2] == '24':
-                            startTime = '23:59:59'
-                        if hourArr[1][0:2] == '24':
-                            endTime = '23:59:59'
-                    elif len(hourArr) == 0:
-                        startTime = '00:00:00'
-                        endTime = '23:59:59'
-                    else:
-                        startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
-                        endTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
-                        if hourArr[0][0:2] == '24':
-                            startTime = '23:59:59'
-                            endTime = '23:59:59'
-                    startDateTime = startDate + ' ' + startTime
-                    endDateTime = endDate + ' ' + endTime
-                    if startDateTime == endDateTime:
-                        # 没有时间范围
-                        Sql = """
-                            INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
-                            VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
-                        """ % (origin_id, link_url, title, create_time, origin_name, channelId, '1', content)
-                    else:
-                        Sql = """
-                            INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content, start_time, end_time, the_geom) 
-                            VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', ST_GeomFromText('%s'));
-                        """ % (origin_id, link_url, title, create_time, origin_name, channelId, '1', content, startDateTime, endDateTime, finalWKT) 
-                try:
-                    print(Sql)
-                    code = cursor.execute(Sql)
-                    conn.commit()
-                except pymysql.err.IntegrityError:
-                    code = 0
-                    print('记录已存在')
+                        endDate = '%s-%s-%s' % (defaultYear, mouthArr[1], dayArr[1])
+                else:
+                    # 单月
+                    startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
+                    endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[1])
+            else:
+                # 单天
+                startDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
+                endDate = '%s-%s-%s' % (defaultYear, mouthArr[0], dayArr[0])
+            if len(hourArr) == 2:
+                startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
+                endTime = '%s:%s:00' % (hourArr[1][0:2], hourArr[1][2:4])
+                if hourArr[0][0:2] == '24':
+                    startTime = '23:59:59'
+                if hourArr[1][0:2] == '24':
+                    endTime = '23:59:59'
+            elif len(hourArr) == 0:
+                startTime = '00:00:00'
+                endTime = '23:59:59'
+            else:
+                startTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
+                endTime = '%s:%s:00' % (hourArr[0][0:2], hourArr[0][2:4])
+                if hourArr[0][0:2] == '24':
+                    startTime = '23:59:59'
+                    endTime = '23:59:59'
+            startDateTime = startDate + ' ' + startTime
+            endDateTime = endDate + ' ' + endTime
+            if startDateTime == endDateTime:
+                # 没有时间范围
+                Sql = """
+                    INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content) 
+                    VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
+                """ % (origin_id, link_url, title, create_time, origin_name, channelId, '1', content)
+            else:
+                Sql = """
+                    INSERT INTO maritime_info(origin_id, link_url, title, create_time, origin_name, origin_no, type, content, start_time, end_time, the_geom) 
+                    VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', ST_GeomFromText('%s'));
+                """ % (origin_id, link_url, title, create_time, origin_name, channelId, '1', content, startDateTime, endDateTime, finalWKT) 
+        try:
+            print(Sql)
+            code = cursor.execute(Sql)
+            conn.commit()
+        except:
+            code = 0
+            print('入库失败')
         codes.append(code)
-        driver.close()
     result = {
-        'codes': codes, # 3 页面打不开 2 英文不入库 1成功 0 重复失败
+        'codes': codes, # 1成功新增 2 已存在 3 英文不入库 4 页面打不开 0 新增失败
         'msg': 'ok',
-        'content': '%s_航行警告成功新增%d条，已存在%d条，英文版%d条，未打开%d条' % (origin_name, codes.count(1), codes.count(0), codes.count(2), codes.count(3)),
+        'content': '%s_航行警告成功新增%d条，已存在%d条，英文版%d条，未打开%d条，失败%d条' % (origin_name, codes.count(1), codes.count(2), codes.count(3), codes.count(4), codes.count(0)),
     }
     print(result)
-# async def main():
-    # await asyncio.gather(sailingWarnings())
-def loop_Body():
-    # asyncio.run(main())
-    # weatherInfo()
-    # sailingWarnings()
-    sailingNotice()
-def loop_func(func, second):
-    while True:
-        timer = Timer(second, func)
-        timer.start()
-        timer.join()
-loop_func(loop_Body, 10)
+
+sailingNotice()
+# sailingWarnings()
+# def loop_Body():
+#     # asyncio.run(main())
+#     # weatherInfo()
+#     sailingWarnings()
+#     # sailingNotice()
+# def loop_func(func, second):
+#     while True:
+#         timer = Timer(second, func)
+#         timer.start()
+#         timer.join()
+# loop_func(loop_Body, 10)
 
 
