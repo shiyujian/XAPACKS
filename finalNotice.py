@@ -46,7 +46,7 @@ regionNotice = {
 }
 regionNoticeArr = list(regionNotice.keys())
 
-countNotice = 2
+countNotice = 4
 def sailingNotice():
     print('sailingNotice开始')
     codes = []
@@ -63,8 +63,8 @@ def sailingNotice():
     session = HTMLSession()
     rep = session.get('https://www.msa.gov.cn/page/openInfo/articleList.do', params={
         'channelId': channelId,
-        'pageNo': 1,
-        'pageSize': 10,
+        'pageNo': 6,
+        'pageSize': 1,
         'isParent': 0
     }, headers=Headers)
     for li in rep.html.find('.main_list_li'):
@@ -280,13 +280,13 @@ def sailingNotice():
     }
     print(result)
 
-# sailingNotice()
+sailingNotice()
 
-def loop_Body():
-    sailingNotice()
-def loop_func(func, second):
-    while True:
-        timer = Timer(second, func)
-        timer.start()
-        timer.join()
-loop_func(loop_Body, 10)
+# def loop_Body():
+#     sailingNotice()
+# def loop_func(func, second):
+#     while True:
+#         timer = Timer(second, func)
+#         timer.start()
+#         timer.join()
+# loop_func(loop_Body, 10)

@@ -88,7 +88,7 @@ def sailingWarnings():
                 print('已存在略过')
                 continue
         if len(patternChinese.findall(title)) == 0:
-            code = 2
+            code = 3
             codes.append(code)
             print('舍弃全英文')
             continue

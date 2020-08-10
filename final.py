@@ -14,8 +14,8 @@ cursor = conn.cursor()
 chrome_options = Options()
 chrome_options.add_argument('headless')
 countWeather = 1
-countWarnings = 5
-countNotice = 4
+countWarnings = 3
+countNotice = 16
 Headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
     "Cookie": "FSSBBIl1UgzbN7N443S=9iHrYuX2kPlKp9ROGzoXAEkcVsAUf_rBF4GwHI1LgtLhk3pkd64cZaUutwB2LS_g; FSSBBIl1UgzbN7N80S=Y2Ms08cD3.Fbwj_KUyRPRobcsatjmNRR5FESRbI0CeyyzL74llHTmu57DpxF2Vus; Hm_lvt_89a42a8529b1127d2cd6fa639511a328=1592978122,1593307026,1593308364,1593317749; JSESSIONID=2wP5cYRrSlpZu24krq9hERSd217iGTjCUyShp5LJRpZo81VvpLBy!-1446521199; FSSBBIl1UgzbN7N80T=1suEYZOvAJxD3SkEojLGy2ji8ThB5t0xQNy_7ZHTnURzYnuc2dSNFAOb.jRYPpmi5HoJV7fIQ9DinzL0YK4RX6u8uvNDS5oBWoD9DsLkppcUFEt0hJZRkDCsjwMY.I7Bqjm5XxD467H6zA2god7deNwcDkIkrvNiBuI8My7LpFm5vNxKi8kgKfE_LvL_dR0Lq.dd5nCSyCmRfaKICoGsXAz8lSpKstgxx.vk.nz3YsdLt; Hm_lpvt_89a42a8529b1127d2cd6fa639511a328=1593325194; FSSBBIl1UgzbN7N443T=1c1mzFIMzdZoHeGZCj7r8rSbpOxSVQ58R.lSFg3CFfjN8gtwJamtQZaQClRiufuNg6K2DYWpjCTM7P_44p6ZdhUMX7b4mfGZfAWd7Ez0kwtvFvIb2.v1U35UuLQzvmfKSSCmSbcktYM1elYZzD6O3uCGISmSwNHjvIIwgF4t6vvfNIblsKSmBZ..pSOIhMbA9u1Id5pq8QE5CDNjVfEXikJw7YNTUv4un.ksPk4z_Cc.yKrp0Xo.Nr5X.21twfDGGBA",
@@ -134,8 +134,8 @@ def sailingNotice():
     session = HTMLSession()
     rep = session.get('https://www.msa.gov.cn/page/openInfo/articleList.do', params={
         'channelId': channelId,
-        'pageNo': 10,
-        'pageSize': 1,
+        'pageNo': 1,
+        'pageSize': 10,
         'isParent': 0
     }, headers=Headers)
     for li in rep.html.find('.main_list_li'):
@@ -201,10 +201,8 @@ def sailingNotice():
         patternDay = re.compile(r'([1-9]|[1-3][0-9])\s?\u65e5')
         patternHour = re.compile(r'(\d{2,4})\s?\u65f6')
         # print(content)
-        # patternXSecond = re.compile(r'(\d{2})°(\d{2})′(\d+)″[N][\W]') # 度分秒格式 38°51′41″N　121°38′12″E
-        # patternYSecond = re.compile(r'[\W](\d{3})°(\d{2})′(\d+)″[E]') # 度分秒格式
-        # patternXMinute = re.compile(r'(\d{2})[-°](\d{2}\.\d+)\W?[N][\W]')
-        # patternYMinute = re.compile(r'[\W](\d{3})-(\d{2}\.\d+)\W?[E]')
+        patternXSecond = re.compile(r'(\d{2})°(\d{2})′(\d+)″[N][\W]') # 度分秒格式 38°51′41″N　121°38′12″E
+        patternYSecond = re.compile(r'[\W](\d{3})°(\d{2})′(\d+)″[E]') # 度分秒格式
         patternXMinute = re.compile(r'\D(\d{2})[°-](\d{2}.\d+)[′]?N') # 度分格式 A：20°00.000′N、108°27.834′E；# 度分格式 29-41.26N 122-31.31E
         patternYMinute = re.compile(r'\D(\d{3})[°-](\d{2}.\d+)[′]?E')
         yearArr = patternYear.findall(content)
@@ -218,10 +216,10 @@ def sailingNotice():
         coordType = ''
         resultX = []
         resultY = []
-        # if len(patternXSecond.findall(content)) > 0 and len(patternYSecond.findall(content)) > 0:
-        #     resultX = patternXSecond.findall(content)
-        #     resultY = patternYSecond.findall(content)
-        #     coordType = 'Second'
+        if len(patternXSecond.findall(content)) > 0 and len(patternYSecond.findall(content)) > 0:
+            resultX = patternXSecond.findall(content)
+            resultY = patternYSecond.findall(content)
+            coordType = 'Second'
         if len(patternXMinute.findall(content)) > 0 and len(patternYMinute.findall(content)) > 0:
             resultX = patternXMinute.findall(content)
             resultY = patternYMinute.findall(content)
@@ -374,7 +372,7 @@ def sailingWarnings():
                 print('已存在略过')
                 continue
         if len(patternChinese.findall(title)) == 0:
-            code = 2
+            code = 3
             codes.append(code)
             print('舍弃全英文')
             continue
@@ -521,18 +519,19 @@ def sailingWarnings():
     }
     print(result)
 
-sailingNotice()
 # sailingWarnings()
-# def loop_Body():
-#     # asyncio.run(main())
-#     # weatherInfo()
-#     sailingWarnings()
-#     # sailingNotice()
-# def loop_func(func, second):
-#     while True:
-#         timer = Timer(second, func)
-#         timer.start()
-#         timer.join()
-# loop_func(loop_Body, 10)
+# sailingNotice()
+
+def loop_Body():
+    # asyncio.run(main())
+    # weatherInfo()
+    # sailingWarnings()
+    sailingNotice()
+def loop_func(func, second):
+    while True:
+        timer = Timer(second, func)
+        timer.start()
+        timer.join()
+loop_func(loop_Body, 10)
 
 
