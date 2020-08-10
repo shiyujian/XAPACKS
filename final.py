@@ -14,8 +14,8 @@ cursor = conn.cursor()
 chrome_options = Options()
 chrome_options.add_argument('headless')
 countWeather = 1
-countWarnings = 3
-countNotice = 16
+countWarnings = 1
+countNotice = 1
 Headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
     "Cookie": "FSSBBIl1UgzbN7N443S=9iHrYuX2kPlKp9ROGzoXAEkcVsAUf_rBF4GwHI1LgtLhk3pkd64cZaUutwB2LS_g; FSSBBIl1UgzbN7N80S=Y2Ms08cD3.Fbwj_KUyRPRobcsatjmNRR5FESRbI0CeyyzL74llHTmu57DpxF2Vus; Hm_lvt_89a42a8529b1127d2cd6fa639511a328=1592978122,1593307026,1593308364,1593317749; JSESSIONID=2wP5cYRrSlpZu24krq9hERSd217iGTjCUyShp5LJRpZo81VvpLBy!-1446521199; FSSBBIl1UgzbN7N80T=1suEYZOvAJxD3SkEojLGy2ji8ThB5t0xQNy_7ZHTnURzYnuc2dSNFAOb.jRYPpmi5HoJV7fIQ9DinzL0YK4RX6u8uvNDS5oBWoD9DsLkppcUFEt0hJZRkDCsjwMY.I7Bqjm5XxD467H6zA2god7deNwcDkIkrvNiBuI8My7LpFm5vNxKi8kgKfE_LvL_dR0Lq.dd5nCSyCmRfaKICoGsXAz8lSpKstgxx.vk.nz3YsdLt; Hm_lpvt_89a42a8529b1127d2cd6fa639511a328=1593325194; FSSBBIl1UgzbN7N443T=1c1mzFIMzdZoHeGZCj7r8rSbpOxSVQ58R.lSFg3CFfjN8gtwJamtQZaQClRiufuNg6K2DYWpjCTM7P_44p6ZdhUMX7b4mfGZfAWd7Ez0kwtvFvIb2.v1U35UuLQzvmfKSSCmSbcktYM1elYZzD6O3uCGISmSwNHjvIIwgF4t6vvfNIblsKSmBZ..pSOIhMbA9u1Id5pq8QE5CDNjVfEXikJw7YNTUv4un.ksPk4z_Cc.yKrp0Xo.Nr5X.21twfDGGBA",
@@ -75,47 +75,47 @@ regionWeatherArr = list(regionWeather.keys())
 regionNoticeArr = list(regionNotice.keys())
 regionWarningsArr = list(regionWarnings.keys())
 # 气象信息
-# def weatherInfo():
-#     print('weatherInfo开始')
-#     codes = []
-#     origin_name = ''
-#     global countWeather
-#     global paramsRegion
-#     countWeather = countWeather + 1
-#     if countWeather > 2:
-#         countWeather = 0
-#     weatherOrigin = regionWeatherArr[countWeather]
-#     if weatherOrigin in regionWeather:
-#         origin_name = regionWeather[weatherOrigin]
-#     rep = requests.get(url='https://www.msa.gov.cn/msacncms_weather/query/', params={
-#         'weatherOrigin': weatherOrigin,
-#         'pageNum': 1,
-#         'pageSize': 10,
-#     }, headers=Headers)
-#     weatherinfoJson = rep.json()
-#     if 'success' in weatherinfoJson:
-#         weatherData = weatherinfoJson['weather']['data']
-#         for record in weatherData:
-#             try:
-#                 Sql = """
-#                     INSERT INTO maritime_info(origin_id, origin_no, origin_name, create_time, content, title, type) 
-#                     VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s');
-#                 """ % (record['weatherId'], record['weatherOrigin'], origin_name, record['weatherDate'], record['weatherContent'], record['weatherTitle'], '2')
-#                 print(Sql)
-#                 code = cursor.execute(Sql)
-#                 conn.commit()
-#             except pymysql.err.IntegrityError:
-#                 print('记录已存在')
-#                 code = 0
-#             except:
-#                 code = 4
-#             codes.append(code)
-#         result = {
-#             'codes': codes,
-#             'msg': 'ok',
-#             'content': '%s_气象信息成功新增%d条，已存在%d条, 其他%d条' % (origin_name, codes.count(1), codes.count(0), codes.count(4))
-#         }
-#         print(result)
+def weatherInfo():
+    print('weatherInfo开始')
+    codes = []
+    origin_name = ''
+    global countWeather
+    global paramsRegion
+    countWeather = countWeather + 1
+    if countWeather > 2:
+        countWeather = 0
+    weatherOrigin = regionWeatherArr[countWeather]
+    if weatherOrigin in regionWeather:
+        origin_name = regionWeather[weatherOrigin]
+    rep = requests.get(url='https://www.msa.gov.cn/msacncms_weather/query/', params={
+        'weatherOrigin': weatherOrigin,
+        'pageNum': 1,
+        'pageSize': 10,
+    }, headers=Headers)
+    weatherinfoJson = rep.json()
+    if 'success' in weatherinfoJson:
+        weatherData = weatherinfoJson['weather']['data']
+        for record in weatherData:
+            try:
+                Sql = """
+                    INSERT INTO maritime_info(origin_id, origin_no, origin_name, create_time, content, title, type) 
+                    VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s');
+                """ % (record['weatherId'], record['weatherOrigin'], origin_name, record['weatherDate'], record['weatherContent'], record['weatherTitle'], '2')
+                print(Sql)
+                code = cursor.execute(Sql)
+                conn.commit()
+            except pymysql.err.IntegrityError:
+                print('记录已存在')
+                code = 0
+            except:
+                code = 4
+            codes.append(code)
+        result = {
+            'codes': codes,
+            'msg': 'ok',
+            'content': '%s_气象信息成功新增%d条，已存在%d条, 其他%d条' % (origin_name, codes.count(1), codes.count(0), codes.count(4))
+        }
+        print(result)
 
 # 航行通告
 def sailingNotice():
@@ -523,9 +523,8 @@ def sailingWarnings():
 # sailingNotice()
 
 def loop_Body():
-    # asyncio.run(main())
-    # weatherInfo()
-    # sailingWarnings()
+    weatherInfo()
+    sailingWarnings()
     sailingNotice()
 def loop_func(func, second):
     while True:
